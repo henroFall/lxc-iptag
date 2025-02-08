@@ -91,6 +91,16 @@ fw_net_interface_changed() {
     fi
 }
 
+is_ip_in_nope_list() {
+    local ip=$1
+    for nope in "${NOPE_LIST[@]}"; do
+        if ipcalc -c "$ip" "$nope" &>/dev/null; then
+            return 0  # IP is in NOPE_LIST
+        fi
+    done
+    return 1  # IP is not in NOPE_LIST
+}
+
 # =============== MAIN =============== #
 
 update_lxc_iptags() {
