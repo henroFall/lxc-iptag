@@ -6,11 +6,11 @@ set -xe
 apt install -y ipcalc
 
 # install lxc-iptag
-curl -sSL https://raw.githubusercontent.com/gitsang/lxc-iptag/main/lxc-iptag -o /usr/local/bin/lxc-iptag && chmod +x /usr/local/bin/lxc-iptag
-curl -sSL https://raw.githubusercontent.com/gitsang/lxc-iptag/main/lxc-iptag.conf -o /usr/local/etc/lxc-iptag.conf
+curl -sSL https://raw.githubusercontent.com/henroFall/lxc-iptag/main/lxc-iptag -o /usr/local/bin/lxc-iptag && chmod +x /usr/local/bin/lxc-iptag
+curl -sSL https://raw.githubusercontent.com/henroFall/lxc-iptag/main/lxc-iptag.conf -o /usr/local/etc/lxc-iptag.conf
 
 # configure lxc-iptag systemd
-curl -sSL https://raw.githubusercontent.com/gitsang/lxc-iptag/main/lxc-iptag.service -o /lib/systemd/system/lxc-iptag.service
+curl -sSL https://raw.githubusercontent.com/henroFall/lxc-iptag/main/lxc-iptag.service -o /lib/systemd/system/lxc-iptag.service
 
 # start lxc-iptag
 systemctl daemon-reload
