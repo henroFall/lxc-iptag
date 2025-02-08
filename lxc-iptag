@@ -94,12 +94,14 @@ fw_net_interface_changed() {
 is_ip_in_nope_list() {
     local ip=$1
     for nope in "${NOPE_LIST[@]}"; do
-        if ipcalc -c "$ip" "$nope" &>/dev/null; then
-            return 0  # IP is in NOPE_LIST
+        if [[ "$ip" == "$nope" ]]; then
+            echo "Matched NOPE_LIST: $ip == $nope"
+            return 0  # Match found, should be skipped
         fi
     done
-    return 1  # IP is not in NOPE_LIST
+    return 1  # No match, can proceed
 }
+
 
 # =============== MAIN =============== #
 
