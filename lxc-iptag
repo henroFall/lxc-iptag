@@ -117,35 +117,30 @@ update_lxc_iptags() {
                 last_tagged_ips+=("${current_tag}")
                 continue
             fi
-            next_tags+=("${current_tag}")
+            next_tags+=("${current_tag}")  # Keep existing non-IP tags
         done
 
         # Get current IPs
         current_ips_full=$(lxc-info -n "${vmid}" -i | awk '{print $2}')
         for ip in ${current_ips_full}; do
             if is_valid_ipv4 "${ip}" && ip_in_cidrs "${ip}" "${CIDR_LIST[*]}"; then
-                current_valid_ips+=("${ip}")
-                next_tags+=("${ip}")
+                if ! is_ip_in_nope_list "$ip"; then
+                    current_valid_ips+=("${ip}")  # Add valid IPs to tracking list
+                    next_tags+=("${ip}")          # Add IP as a tag
+                else
+                    echo "Skipping IP $ip as it is in the NOPE_LIST."
+                fi
             fi
         done
 
-        # Skip if no ip change
-        if [[ ${#last_tagged_ips[@]} -gt 0 && "$(echo "${last_tagged_ips[@]}" | tr ' ' '\n' | sort -u)" == "$(echo "${current_valid_ips[@]}" | tr ' ' '\n' | sort -u)" ]]; then
-            echo "Skipping ${vmid} cause ip no changes"
+        # Fix: Ensure tags are updated properly
+        if [[ ${#current_valid_ips[@]} -eq 0 ]]; then
+            echo "No valid IPs found for ${vmid}, skipping tag update."
             continue
         fi
 
-        # Process IPs and apply NOPE_LIST filter
-        for ip in ${current_valid_ips[@]}; do
-            if is_ip_in_nope_list "$ip"; then
-                echo "Skipping IP $ip as it is in the NOPE_LIST."
-                continue
-            fi
-            next_tags+=("${ip}")
-        done
-
-        # Set tags
-        echo "Setting ${vmid} tags from ${current_tags[*]} to ${next_tags[*]}"
+        # Apply the updated tags to the container
+        echo "Setting ${vmid} tags to: ${next_tags[*]}"
         pct set "${vmid}" -tags "$(IFS=';'; echo "${next_tags[*]}")"
     done
 }
