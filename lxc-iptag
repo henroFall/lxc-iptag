@@ -128,7 +128,7 @@ update_lxc_iptags() {
             if is_valid_ipv4 "${ip}" && ip_in_cidrs "${ip}" "${CIDR_LIST[*]}"; then
                 if ! is_ip_in_nope_list "$ip"; then
                     current_valid_ips+=("${ip}")  # Track valid IPs
-                    next_tags+=("${ip}")          # Ensure IP gets added as a tag
+                    next_tags+=("IP-${ip}")          # Ensure IP gets added as a tag
                 else
                     echo "Skipping IP $ip as it is in the NOPE_LIST."
                 fi
