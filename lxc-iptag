@@ -120,27 +120,28 @@ update_lxc_iptags() {
             next_tags+=("${current_tag}")  # Keep existing non-IP tags
         done
 
-        # Get current IPs
+        # Get current IPs and validate them
         current_ips_full=$(lxc-info -n "${vmid}" -i | awk '{print $2}')
         for ip in ${current_ips_full}; do
             if is_valid_ipv4 "${ip}" && ip_in_cidrs "${ip}" "${CIDR_LIST[*]}"; then
                 if ! is_ip_in_nope_list "$ip"; then
-                    current_valid_ips+=("${ip}")  # Add valid IPs to tracking list
-                    next_tags+=("${ip}")          # Add IP as a tag
+                    current_valid_ips+=("${ip}")  # Track valid IPs
+                    next_tags+=("${ip}")          # Ensure IP gets added as a tag
                 else
                     echo "Skipping IP $ip as it is in the NOPE_LIST."
                 fi
             fi
         done
 
-        # Fix: Ensure tags are updated properly
+        # Ensure that we keep existing non-IP tags but always update if needed
         if [[ ${#current_valid_ips[@]} -eq 0 ]]; then
-            echo "No valid IPs found for ${vmid}, skipping tag update."
-            continue
+            echo "No valid IPs found for ${vmid}, keeping only non-IP tags."
+        else
+            echo "Adding IPs to ${vmid}: ${current_valid_ips[*]}"
         fi
 
         # Apply the updated tags to the container
-        echo "Setting ${vmid} tags to: ${next_tags[*]}"
+        echo "Final tags for ${vmid}: ${next_tags[*]}"
         pct set "${vmid}" -tags "$(IFS=';'; echo "${next_tags[*]}")"
     done
 }
