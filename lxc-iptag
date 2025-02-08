@@ -134,7 +134,11 @@ update_lxc_iptags() {
             echo "Skipping ${vmid} cause ip no changes"
             continue
         fi
-
+        for ip in $container_ips; do
+            if is_ip_in_nope_list "$ip"; then
+            echo "Skipping IP $ip as it is in the NOPE_LIST."
+            continue
+        fi
         # Set tags
         echo "Setting ${vmid} tags from ${current_tags[*]} to ${next_tags[*]}"
         pct set "${vmid}" -tags "$(IFS=';'; echo "${next_tags[*]}")"
