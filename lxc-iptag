@@ -130,7 +130,7 @@ update_lxc_iptags() {
         done
 
         # Skip if no ip change
-        if [[ "$(echo "${last_tagged_ips[@]}" | tr ' ' '\n' | sort -u)" == "$(echo "${current_valid_ips[@]}" | tr ' ' '\n' | sort -u)" ]]; then
+        if [[ ${#last_tagged_ips[@]} -gt 0 && "$(echo "${last_tagged_ips[@]}" | tr ' ' '\n' | sort -u)" == "$(echo "${current_valid_ips[@]}" | tr ' ' '\n' | sort -u)" ]]; then
             echo "Skipping ${vmid} cause ip no changes"
             continue
         fi
